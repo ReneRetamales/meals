@@ -8,18 +8,18 @@ class MealDetailsScreen extends ConsumerWidget {
   const MealDetailsScreen({
     super.key,
     required this.meal,
-    // required this.onToggleFavorite,
   });
 
   final Meal meal;
-  // final void Function(Meal meal) onToggleFavorite;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteMeals = ref.watch(favoriteMealsProvider);
+
+    final isFavorite = favoriteMeals.contains(meal);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(meal.title),
-        actions: [
+        appBar: AppBar(title: Text(meal.title), actions: [
           IconButton(
             onPressed: () {
               final wasAdded = ref
@@ -29,64 +29,63 @@ class MealDetailsScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    wasAdded
-                        ? "Alimento añadido a favoritos"
-                        : "Alimento elminado de favoritos",
-                  ),
+                      wasAdded ? 'Meal added as a favorite.' : 'Meal removed.'),
                 ),
               );
             },
-            icon: const Icon(Icons.star),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Image.network(
-              meal.imageUrl,
-              height: 300,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              /* Este código permite que WIKIMEDIA no me detecte como bot 
-          al solicitar acceso a las imágenes */
-              headers: const {
-                'User-Agent': 'MiAppDeRecetas/1.0 (contacto@tuemail.com)',
-              },
-              errorBuilder: (ctx, err, stack) => const Icon(Icons.fastfood),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              "Ingredientes",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            icon: Icon(isFavorite ? Icons.star : Icons.star_border),
+          )
+        ]),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Image.network(
+                meal.imageUrl,
+                height: 300,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-            ),
-            const SizedBox(height: 14),
-            /* Esta linea de abajo es para mostrar info */
-            for (final ingredient in meal.ingredients) Text(ingredient),
-            const SizedBox(height: 14),
-            Text(
-              "Pasos",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 14),
+              Text(
+                'Ingredients',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-            ),
-            const SizedBox(height: 14),
-            /* Esta linea de abajo es para mostrar info */
-            for (final step in meal.steps)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 5,
+              const SizedBox(height: 14),
+              for (final ingredient in meal.ingredients)
+                Text(
+                  ingredient,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                 ),
-                child: Text(step, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              Text(
+                'Steps',
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-          ],
-        ),
-      ),
-    );
+              const SizedBox(height: 14),
+              for (final step in meal.steps)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    step,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                  ),
+                ),
+            ],
+          ),
+        ));
   }
 }
